@@ -1,5 +1,6 @@
 import logging
 import sys
+import re
 from datasets import Dataset
 
 loggers = {}
@@ -78,6 +79,15 @@ def remove_elements(response, open='<thinking>', close='</thinking>'):
 def replace_answer_tags(response, open_bracket='<answer>', close_bracket='</answer>'):
     return response.replace(open_bracket, '').replace(close_bracket, '')
 
+def extract_answer(response, open_bracket='<answer>', close_bracket='</answer>'):
+    extracted = re.findall(
+        rf"{open_bracket}(.*?){close_bracket}",
+        response,
+        re.DOTALL)
+    if extracted:
+        return extracted[0]
+    return response.replace(open_bracket, '').replace(close_bracket, '')
+
 def replace_null_answer(response):
     ans_patterns = ['FAIL TO GENERATE ANS.']
     if response in ans_patterns:
@@ -89,15 +99,43 @@ def process_response(response):
     response = remove_elements(response, 'Thinking: ', 'Answer: ')
     response = remove_elements(response, 'Thoughts: ', 'Answer: ')
     response = remove_elements(response, 'Thought: ', 'Answer: ')
-    response = replace_answer_tags(response, 'Answer: ')
-    response = replace_answer_tags(response, 'Answer:\n')
+    # response = replace_answer_tags(response, 'Answer: ')
+    # response = replace_answer_tags(response, 'Answer:\n')
+    # response = replace_answer_tags(response)
+    response = re.split(r'<passage[^>]*>', response)[-1]
+    response = re.split(r'</passage[^>]*>', response)[-1]
+    response = response.split('<query>')[-1]
+    response = response.split('</query>')[-1]
+    response = response.split('Answer: ')[-1]
+    response = response.split('<answer>')[-1]
     response = replace_answer_tags(response)
     response = replace_null_answer(response)
     return response
 
 def is_hf_model(model_name):
-    hf_models = ['llama', 'mistral', 'cohere', 'qwen']
+    hf_models = ['mistral', 'cohere']
     if any([m in model_name.lower() for m in hf_models]):
         return True
     else:
         return False
+
+def group_data_by_task(input_file='data/human_eval/LFRQA_gpt-4_eval_by_gpt-4-0125-preview.json', save_to='eval_inputs/from_colbert'):
+    import json
+    import os
+    with open(input_file, 'r', encoding='utf-8') as fr:
+        data = json.load(fr)
+    grouped = dict()
+    for item in data:
+        pair_id = item['pair_id'].split('-')[0]
+        if pair_id not in grouped:
+            grouped[pair_id] = [item]
+        else:
+            grouped[pair_id].append(item)
+    for task_name, data_points in grouped.items():
+        print(f'num of data points for task {task_name}: {len(data_points)}')
+        with open(os.path.join(save_to, f'{task_name}_gpt-4.json'), 'w', encoding='utf-8') as fw:
+            json.dump(data_points, fw, ensure_ascii=False)
+
+
+if __name__ == '__main__':
+    group_data_by_task()

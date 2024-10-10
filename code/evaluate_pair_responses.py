@@ -1,3 +1,4 @@
+from dataclasses import dataclass, field
 import json
 from transformers import (
     HfArgumentParser, 
@@ -11,8 +12,16 @@ from arguments import GlobalArguments, EvalArguments
 from utils import get_logger, is_hf_model
 logger = get_logger()
 
+
+@dataclass
+class ModelArguments(GlobalArguments):
+    model_url: str = None
+    use_gt_ctx: bool = False
+    inject_negative_ctx: bool = False
+
+
 if __name__ == "__main__":
-    parser = HfArgumentParser((GlobalArguments, EvalArguments))
+    parser = HfArgumentParser((ModelArguments, EvalArguments))
     parser.parse_args_into_dataclasses()
     config, eval_args = parser.parse_args_into_dataclasses()
     logger = get_logger(__name__)

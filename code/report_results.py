@@ -15,18 +15,21 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     target_models = [
-                 'gpt-4o',
-                 'gpt-4-turbo',
-                 'gpt-4-0125-preview',
-                 'mistralai-Mixtral-8x22B-Instruct-v0.1',
-                 'mistralai-Mixtral-8x7B-Instruct-v0.1',
-                 'meta-llama-Meta-Llama-3-70B-Instruct',
-                 'meta-llama-Meta-Llama-3-8B-Instruct',
-                 'CohereForAI-c4ai-command-r-plus',
-                 'CohereForAI-c4ai-command-r-v01',
-                 'Qwen-Qwen1.5-110B-Chat',
-                 'Qwen-Qwen1.5-32B-Chat'
-                 ]
+        # 'gpt-4',
+        # 'gpt-4o-mini',
+        #  'gpt-4o',
+        #  'gpt-4-turbo',
+        #  'gpt-4-0125-preview',
+        #  'mistralai-Mixtral-8x22B-Instruct-v0.1',
+        #  'mistralai-Mixtral-8x7B-Instruct-v0.1',
+        #  'meta-llama-Meta-Llama-3-70B-Instruct',
+        #  'meta-llama-Meta-Llama-3-8B-Instruct',
+        #  'CohereForAI-c4ai-command-r-plus',
+        #  'CohereForAI-c4ai-command-r-v01',
+        #  'Qwen-Qwen1.5-110B-Chat',
+        #  'Qwen-Qwen1.5-32B-Chat',
+        'internlm2_5-7b-chat'
+    ]
     
     # battles data for Elo rating
     battles = {'model_a': [], 'model_b': [], 'winner': []}
